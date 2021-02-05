@@ -2,6 +2,7 @@ from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from retry import retry
 
 
 class Experiment(object):
@@ -16,6 +17,10 @@ class Experiment(object):
 
         # Density - fraction of fluorescing pixels per voxel
         self.cache = cache
+        self._fetch_data_from_server()
+
+    @retry()
+    def _fetch_data_from_server(self):
         self.valid_mask = self.cache.get_data_mask(self.id)[0]
         self.injection_fraction = self.cache.get_injection_fraction(self.id)[0]
         self.projection_density = self.cache.get_projection_density(self.id)[0]
