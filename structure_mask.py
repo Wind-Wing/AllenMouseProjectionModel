@@ -50,10 +50,24 @@ class StructureMask(object):
 
 if __name__ == "__main__":
     structure_mask = StructureMask()
-    summary_structures = structure_mask.structure_tree.get_structures_by_set_id([167587189])
-    print(summary_structures)
+    structure_tree = structure_mask.structure_tree
 
-    oapi = OntologiesApi()
-    structure_set_ids = structure_mask.structure_tree.get_structure_sets()
-    all_structure = oapi.get_structure_sets(structure_set_ids)
-    print(all_structure)
+    cortex_structures = structure_tree.get_structures_by_set_id([688152357])
+    print(cortex_structures)
+    child = structure_tree.child_ids([526322264])[0]
+    print(child)
+
+    isocortex = structure_tree.get_structures_by_name(['Isocortex'])[0]
+    print(isocortex)
+    child = structure_tree.child_ids([isocortex['id']])[0]
+    print(child)
+    all_structures = structure_tree.get_structures_by_id(child)
+    print(all_structures)
+
+    # summary_structures = structure_tree.get_structures_by_set_id([167587189])
+    # print(summary_structures)
+    #
+    # oapi = OntologiesApi()
+    # structure_set_ids = structure_tree.get_structure_sets()
+    # all_structure = oapi.get_structure_sets(structure_set_ids)
+    # print(all_structure)
