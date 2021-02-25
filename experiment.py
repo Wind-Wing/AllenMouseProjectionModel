@@ -1,7 +1,6 @@
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from retry import retry
 
 
@@ -10,10 +9,10 @@ class Experiment(object):
         self.id = exp_dict["id"]
         self.structure_id = exp_dict["structure_id"]
         self.structure_name = exp_dict["structure_name"]
-        self.primary_injection_structure = exp_dict["primary_injection_structure"]
         self.injection_structures = exp_dict["injection_structures"]
-        self.injection_volume = exp_dict["injection_volume"]
-        self.injection_coordinate = (exp_dict["injection_x"], exp_dict["injection_y"], exp_dict["injection_z"])
+        self.primary_injection_structure = exp_dict["primary_injection_structure"]
+        # self.injection_volume = exp_dict["injection_volume"]
+        # self.injection_coordinate = (exp_dict["injection_x"], exp_dict["injection_y"], exp_dict["injection_z"])
 
         # Density - fraction of fluorescing pixels per voxel
         self.cache = MouseConnectivityCache(resolution=resolution)
@@ -23,9 +22,9 @@ class Experiment(object):
     def _fetch_data_from_server(self):
         # Projection density is superset of injection density.
         self.valid_mask = self.cache.get_data_mask(self.id)[0]
-        self.injection_fraction = self.cache.get_injection_fraction(self.id)[0]
-        self.projection_density = self.cache.get_projection_density(self.id)[0]
-        self.injection_density = self.cache.get_injection_density(self.id)[0]
+        # self.injection_fraction = self.cache.get_injection_fraction(self.id)[0]
+        self.projection_density = self.cache.get_projection_density(self.id)[0] * self.valid_mask
+        self.injection_density = self.cache.get_injection_density(self.id)[0] * self.valid_mask
 
     @property
     def injection_centroid(self):
