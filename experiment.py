@@ -6,7 +6,7 @@ from retry import retry
 
 
 class Experiment(object):
-    def __init__(self, exp_dict, cache):
+    def __init__(self, exp_dict, resolution):
         self.id = exp_dict["id"]
         self.structure_id = exp_dict["structure_id"]
         self.structure_name = exp_dict["structure_name"]
@@ -16,11 +16,12 @@ class Experiment(object):
         self.injection_coordinate = (exp_dict["injection_x"], exp_dict["injection_y"], exp_dict["injection_z"])
 
         # Density - fraction of fluorescing pixels per voxel
-        self.cache = cache
+        self.cache = MouseConnectivityCache(resolution=resolution)
         self._fetch_data_from_server()
 
     @retry()
     def _fetch_data_from_server(self):
+        # Projection density is superset of injection density.
         self.valid_mask = self.cache.get_data_mask(self.id)[0]
         self.injection_fraction = self.cache.get_injection_fraction(self.id)[0]
         self.projection_density = self.cache.get_projection_density(self.id)[0]
