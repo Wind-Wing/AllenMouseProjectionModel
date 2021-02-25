@@ -35,7 +35,10 @@ class VoxelModel(object):
         projection_matrix = np.matmul(normalized_kernel, projection_density)
         return projection_matrix
 
-    def get_projection_matrix(self, exp_list, structure_id_list):
+    # structure_id_list - [num_structure_id] Voxels in which structures that needed to predict it's projection
+    #                   taking this voxel as injection point.
+    # exp_list - [num_exp] experiences as training data that used to predict the unknown projection from above voxels.
+    def get_projection_matrix(self, structure_id_list, exp_list):
         structure_mask = StructureMask()
         mask = structure_mask.get_mask(structure_id_list)
         voxel_coordinate = mask.nonzeros().transpose()
