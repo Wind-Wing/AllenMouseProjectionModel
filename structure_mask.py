@@ -1,6 +1,7 @@
 from queue import Queue
 import numpy as np
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
+from allensdk.api.queries.ontologies_api import OntologiesApi
 
 
 class StructureMask(object):
@@ -50,8 +51,9 @@ class StructureMask(object):
 if __name__ == "__main__":
     structure_mask = StructureMask()
     summary_structures = structure_mask.structure_tree.get_structures_by_set_id([167587189])
-    id_list = set([int(i['id']) for i in summary_structures])
-    annotation_list = set(structure_mask.annotations.flatten())
-    print(id_list.difference(annotation_list))
-    print(annotation_list.difference(id_list))
+    print(summary_structures)
 
+    oapi = OntologiesApi()
+    structure_set_ids = structure_mask.structure_tree.get_structure_sets()
+    all_structure = oapi.get_structure_sets(structure_set_ids)
+    print(all_structure)
