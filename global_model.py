@@ -3,7 +3,8 @@ from structure_mask import StructureMask
 from voxel_model import VoxelModel
 
 
-class FullCortexModel(object):
+# Using nadaraya watson method to calculate region projection matrix based on global data
+class GlobalModel(object):
     def __init__(self, region_id_list, exp_list):
         self.id_list = region_id_list
         self.exp_list = exp_list
@@ -16,14 +17,15 @@ class FullCortexModel(object):
         projection_list = np.array([self._get_region_projection(x) for x in self.id_list])
 
         structure_mask = StructureMask()
-        for i in self.id_list:
-            mask_idx = structure_mask.get_mask(i).nonzeros()
-            region_projection_list = projection_list[:, mask_idx]
+        for i in range(num_regions):
+            mask_idx = structure_mask.get_mask([self.id_list[i]]).nonzero()
+            region_projection_list = np.array([x[mask_idx] for x in projection_list])
             assert len(region_projection_list.shape) == 2
             mat[:, i] = np.mean(region_projection_list, axis=1)
         return mat
 
     def _get_region_projection(self, structure_id):
+        print("Calculating projection of %d" % structure_id)
         voxel_model = VoxelModel(self.gamma)
         voxel_projection_matrix = voxel_model.get_projection_matrix([structure_id], self.exp_list)
         voxel_projection = np.mean(voxel_projection_matrix, axis=0)

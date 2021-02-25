@@ -22,7 +22,7 @@ class VoxelModel(object):
     def _normalize_kernel(kernel):
         _sum = np.sum(kernel, axis=1, keepdims=True)
         _kernel = kernel / _sum
-        return _sum
+        return _kernel
 
     # Calculate projection strength using Nadaraya Watson Method
     # x - [num_regional_voxel, 3] Coordinate of source voxels that need to predict its projection density
@@ -42,7 +42,7 @@ class VoxelModel(object):
     def get_projection_matrix(self, structure_id_list, exp_list):
         structure_mask = StructureMask()
         mask = structure_mask.get_mask(structure_id_list)
-        voxel_coordinate = mask.nonzeros().transpose()
+        voxel_coordinate = np.array(mask.nonzero()).transpose()
 
         injection_centroid = np.array([x.injection_centroid for x in exp_list])
         normalized_projection = np.array([x.normalized_projection_density for x in exp_list])

@@ -10,9 +10,13 @@ def calc_cortex_regional_projection_matrix():
     structure_tree = mcc.get_structure_tree()
     cortex_structures = structure_tree.get_structures_by_set_id([688152357])
     cortex_region_ids = [x['id'] for x in cortex_structures]
+    print(cortex_region_ids)
 
+    print("Getting experiences' ids")
     all_experiments = mcc.get_experiments(dataframe=False, injection_structure_ids=cortex_region_ids)
-    exp_formater = lambda exp: Experiment(exp, mcc)
+    print("Total %d experiences" % len(all_experiments))
+    print("Loading and formating experience data")
+    exp_formater = lambda exp: Experiment(exp, 100)
     exp_list = list(map(exp_formater, all_experiments))
 
     # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
