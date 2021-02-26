@@ -27,30 +27,42 @@ class VoxelModel(object):
     # Calculate projection strength using Nadaraya Watson Method
     # x - [num_regional_voxel, 3] Coordinate of source voxels that need to predict its projection density
     # y - [num_experience, 3] Centroid injection coordinate of selected experiences
-    # projection_density - [num_experiences, num_all_voxel] Normalized projection density from selected experiences
-    # Return: projection weight matrix - [num_regional_voxel, num_all_voxel] a[i][j] means i -> j 's projection strength
+    # projection_density - [num_experiences, num_target_voxel] Normalized projection density from selected experiences
+    # Return: projection weight matrix - [num_regional_voxel, num_target_voxel] a[i][j]: i -> j 's projection strength
     def _calc_projection_matrix(self, x, y, projection_density):
         kernel = self._get_kernel(x, y)
         normalized_kernel = self._normalize_kernel(kernel)
         projection_matrix = np.matmul(normalized_kernel, projection_density)
         return projection_matrix
 
-    # structure_id_list - [num_structure_id] Voxels in which structures that needed to predict it's projection
+    # source_id_list - [num_structure_id] Voxels in which structures that needed to predict it's projection
     #                   taking this voxel as injection point.
+    # target_id_list - [num_structure_id] Voxels in which structures that source voxel project to.
     # exp_list - [num_exp] experiences as training data that used to predict the unknown projection from above voxels.
-    # Return: projection_matrix - [num_regional_voxel, x, y, z] density of projection from this region voxel
-    def get_projection_matrix(self, structure_id_list, exp_list):
+    # Return: projection_matrix - [x, y, z] mean density of projection from all voxels in source region
+    def get_voxel_mean_projection_matrix(self, source_id_list, target_id_list, exp_list):
         structure_mask = StructureMask()
-        mask = structure_mask.get_mask(structure_id_list)
-        voxel_coordinate = np.array(mask.nonzero()).transpose()
+        source_mask = structure_mask.get_mask(source_id_list)
+        source_voxel_coordinate = np.array(source_mask.nonzero()).transpose()
+        source_voxel_num = int(np.sum(source_mask))
+
+        target_mask = structure_mask.get_mask(target_id_list)
+        target_voxel_idx = target_mask.nonzero()
+        target_voxel_num = int(np.sum(target_mask))
+        print("Source voxels' number %d, target voxels' number %d" % (source_voxel_num,  target_voxel_num))
 
         injection_centroid = np.array([x.injection_centroid for x in exp_list])
-        normalized_projection = np.array([x.normalized_projection_density for x in exp_list])
-        _shape = tuple(normalized_projection.shape)
-        normalized_projection = np.reshape(normalized_projection, (int(_shape[0]), -1))
+        normalized_projection = np.array([x.normalized_projection_density[target_voxel_idx] for x in exp_list])
 
-        projection_matrix = self._calc_projection_matrix(voxel_coordinate, injection_centroid, normalized_projection)
-        projection_matrix = np.reshape(projection_matrix, (-1, int(_shape[1]), int(_shape[2]), int(_shape[3])))
+        _projection_matrix = self._calc_projection_matrix(
+            source_voxel_coordinate,
+            injection_centroid,
+            normalized_projection)
+        mean_projection_matrix = np.mean(_projection_matrix, axis=0)
+
+        projection_matrix = np.zeros_like(source_mask)
+        projection_matrix[target_voxel_idx] = mean_projection_matrix
+        projection_matrix = np.reshape(projection_matrix, source_mask.shape)
         return projection_matrix
 
 

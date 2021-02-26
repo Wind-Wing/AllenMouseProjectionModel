@@ -24,12 +24,14 @@ class GlobalModel(object):
             mat[:, i] = np.mean(region_projection_list, axis=1)
         return mat
 
-    def _get_region_projection(self, structure_id):
-        print("Calculating projection of %d" % structure_id)
+    def _get_region_projection(self, source_structure_id):
+        print("Calculating projection of %d" % source_structure_id)
         voxel_model = VoxelModel(self.gamma)
-        voxel_projection_matrix = voxel_model.get_projection_matrix([structure_id], self.exp_list)
-        voxel_projection = np.mean(voxel_projection_matrix, axis=0)
-        return voxel_projection
+        voxel_projection_matrix = voxel_model.get_voxel_mean_projection_matrix(
+            [source_structure_id],
+            self.id_list,
+            self.exp_list)
+        return voxel_projection_matrix
 
 
 
