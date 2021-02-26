@@ -25,7 +25,18 @@ def calc_cortex_regional_projection_matrix():
     # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
     global_model = GlobalModel(cortex_region_ids, exp_list)
     mat = global_model.get_regional_projection_matrix()
-    return mat
+
+    _time = time.time()
+    np.savetxt("results/%f.txt" % _time, mat)
+    labels = [x['acronym'] for x in cortex_structures]
+
+    plt.imshow(mat)
+    plt.xticks(range(len(labels)), labels, rotation=60)
+    plt.yticks(range(len(labels)), labels)
+    fig = plt.gcf()
+    fig.set_size_inches((10, 10), forward=False)
+    fig.savefig("results/%f.png" % _time)
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -50,9 +61,4 @@ if __name__ == "__main__":
     # print(a['max_voxel_y'])
     # print(a['projection_density'])
 
-    mat = calc_cortex_regional_projection_matrix()
-    _time = time.time()
-    np.savetxt("results/%f.txt" % _time, mat)
-    plt.imshow(mat)
-    plt.savefig("results/%f.png" % _time)
-    plt.show()
+    calc_cortex_regional_projection_matrix()
