@@ -133,3 +133,4 @@ dmypy.json
 
 # Allen data
 mouse_connectivity/
+results/

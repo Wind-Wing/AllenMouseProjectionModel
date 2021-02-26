@@ -60,7 +60,7 @@ class VoxelModel(object):
             normalized_projection)
         mean_projection_matrix = np.mean(_projection_matrix, axis=0)
 
-        projection_matrix = np.zeros_like(source_mask)
+        projection_matrix = np.zeros(source_mask.shape)
         projection_matrix[target_voxel_idx] = mean_projection_matrix
         projection_matrix = np.reshape(projection_matrix, source_mask.shape)
         return projection_matrix
