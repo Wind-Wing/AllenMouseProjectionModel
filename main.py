@@ -27,15 +27,16 @@ def calc_cortex_regional_projection_matrix():
     mat = global_model.get_regional_projection_matrix()
 
     _time = time.time()
-    np.savetxt("results/%f.txt" % _time, mat)
+    _name = "max_mean-withoutNorm-%f" % _time
+    np.savetxt("results/"+_name + ".txt", mat)
     labels = [x['acronym'] for x in cortex_structures]
 
-    plt.imshow(mat)
+    plt.imshow(mat, cmap=plt.cm.afmhot)
     plt.xticks(range(len(labels)), labels, rotation=60)
     plt.yticks(range(len(labels)), labels)
     fig = plt.gcf()
     fig.set_size_inches((10, 10), forward=False)
-    fig.savefig("results/%f.png" % _time)
+    fig.savefig("results/"+_name + ".png")
     plt.show()
 
 

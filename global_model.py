@@ -24,7 +24,7 @@ class GlobalModel(object):
             assert len(region_projection_list.shape) == 2
             mat[i, :] = np.mean(region_projection_list, axis=1)
 
-        mat = self._normalize_projection_matrix(mat)
+        # mat = self._normalize_projection_matrix(mat)
         return mat
 
     @staticmethod
