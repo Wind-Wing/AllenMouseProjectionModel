@@ -1,8 +1,8 @@
 import numpy as np
-from structure_mask import StructureMask
+from utils.structure_mask import StructureMask
 
 
-class RegionalProjectionMatrix(object):
+class RegionalModel(object):
     def __init__(self, voxel_projection_matrix, region_id_list):
         self.voxel_matrix = voxel_projection_matrix
         self.id_list = region_id_list

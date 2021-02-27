@@ -2,9 +2,9 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
-from global_model import GlobalModel
-from experiment import Experiment
-from structure_mask import StructureMask
+from model.global_model import GlobalModel
+from utils.experiment import Experiment
+from utils.structure_mask import StructureMask
 
 
 def calc_cortex_regional_projection_matrix():

@@ -1,9 +1,10 @@
 import numpy as np
-from structure_mask import StructureMask
+from utils.structure_mask import StructureMask
 from voxel_model import VoxelModel
 
 
-# Using nadaraya watson method to calculate region projection matrix based on global data
+# TODO: compare with regional model and homogeneous model
+# Using Nadaraya Watson method to calculate region projection matrix based on global data
 class GlobalModel(object):
     def __init__(self, region_id_list, exp_list):
         self.id_list = region_id_list

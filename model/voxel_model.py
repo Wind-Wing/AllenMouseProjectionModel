@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_kernels
-from structure_mask import StructureMask
+from utils.structure_mask import StructureMask
 
 
 class VoxelModel(object):
