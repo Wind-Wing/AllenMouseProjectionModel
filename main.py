@@ -4,7 +4,6 @@ import numpy as np
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from model.global_model import GlobalModel
 from utils.experiment import Experiment
-from utils.structure_mask import StructureMask
 
 
 def calc_cortex_regional_projection_matrix():
@@ -23,8 +22,8 @@ def calc_cortex_regional_projection_matrix():
     exp_list = list(map(exp_formater, all_experiments))
 
     # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
-    global_model = GlobalModel(cortex_region_ids, exp_list)
-    mat = global_model.get_regional_projection_matrix()
+    global_model = GlobalModel()
+    mat = global_model.get_regional_projection_matrix(cortex_region_ids, cortex_region_ids, exp_list)
 
     _time = time.time()
     _name = "max_mean-withoutNorm-%f" % _time
@@ -40,26 +39,30 @@ def calc_cortex_regional_projection_matrix():
     plt.show()
 
 
+def calc_cortex_region_projection_volume(structure_id):
+    mcc = MouseConnectivityCache(resolution=100)
+
+    structure_tree = mcc.get_structure_tree()
+    cortex_structures = structure_tree.get_structures_by_set_id([688152357])
+    cortex_region_ids = [x['id'] for x in cortex_structures]
+    print(structure_id, cortex_region_ids)
+
+    print("Getting experiences' ids")
+    all_experiments = mcc.get_experiments(dataframe=False, injection_structure_ids=cortex_region_ids)
+    print("Total %d experiences" % len(all_experiments))
+    print("Loading and formating experience data")
+    exp_formater = lambda exp: Experiment(exp, 100)
+    exp_list = list(map(exp_formater, all_experiments))
+
+    global_model = GlobalModel()
+    volume = global_model.get_region_projection(structure_id, cortex_region_ids, exp_list)
+
+    _time = time.time()
+    _name = "max_mean-withoutNorm-projection_volume-%f" % _time
+    np.save("results/" + _name + ".npy", volume)
+
+
 if __name__ == "__main__":
-    # mcc = MouseConnectivityCache(resolution=100)
-    # structure_tree = mcc.get_structure_tree()
-    # cortex_structures = structure_tree.get_structures_by_set_id([688152357])
-    # cortex_region_ids = [x['id'] for x in cortex_structures]
+    # calc_cortex_regional_projection_matrix()
 
-    # for id in cortex_region_ids:
-    #     structure_mask = StructureMask()
-    #     mask = structure_mask.get_mask([id])
-    #     print(id, np.sum(mask))
-
-    # structure_mask = StructureMask()
-    # mask = structure_mask.get_mask(cortex_region_ids)
-    # print(np.sum(mask))
-
-    # cortex_region_ids = [cortex_structures[0]['id']]
-    # all_experiments = mcc.get_experiments(dataframe=False, injection_structure_ids=cortex_region_ids)
-    # a = mcc.get_structure_unionizes(experiment_ids=[all_experiments[0]['id']], structure_ids=cortex_region_ids)
-    # print(a.columns)
-    # print(a['max_voxel_y'])
-    # print(a['projection_density'])
-
-    calc_cortex_regional_projection_matrix()
+    calc_cortex_region_projection_volume(184)
