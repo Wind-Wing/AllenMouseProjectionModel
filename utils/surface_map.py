@@ -3,40 +3,48 @@ import numpy as np
 import matplotlib.pyplot as plt
 from structure_mask import StructureMask
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
+from utils.cortical_map import CorticalMap
 
 
-# TODO: get a voxel level matrix
-# Default view is coronal plane
 class SurfaceMap(object):
-    def __init__(self, data_path):
-        self.projection = np.loadtxt(data_path)
-        mcc = MouseConnectivityCache(resolution=100)
+    def __init__(self, resolution=100):
+        mcc = MouseConnectivityCache(resolution=resolution)
         self.structure_tree = mcc.get_structure_tree()
         self.structure_mask = StructureMask()
+        self.cortical_map = CorticalMap(projection='top_view')
+        module_path = os.path.dirname(__file__)
+        self.base_path = os.path.join(module_path, '../')
 
-        mask = self._get_cortex_volume_mask()
-        idx = self._find_cross_section_idx(mask)
-        self._get_cortex_mask(mask, idx)
+    def draw_cortical_surface_map(self, relative_data_path, source_structure_id):
+        source_mask = self.structure_mask.get_mask([source_structure_id])
+        projection_matrix = self._load_projection_matrix(relative_data_path)
+        source_map = self.cortical_map.transform(source_mask)
+        projection_map = self.cortical_map.transform(projection_matrix)
 
-    def _get_cortex_volume_mask(self):
-        summary_structures = self.structure_tree.get_structures_by_set_id([688152357])
-        id_list = [x['id'] for x in summary_structures]
-        mask = self.structure_mask.get_mask(id_list)
-        return mask
+        save_name = os.path.basename(relative_data_path)
+        save_name = os.path.splitext(save_name)[0]
+        self._draw_surface_map(source_map, projection_map, save_name)
 
-    @staticmethod
-    def _find_cross_section_idx(mask):
-        voxel_count = np.sum(mask, axis=(0, 2))
-        return np.argmax(voxel_count)
+    def _draw_surface_map(self, source_map, projection_map, save_name):
+        save_path = self.base_path + "/results"
+        save_path = os.path.join(save_path, save_name)
+        print(save_path)
 
-    @staticmethod
-    def _get_cortex_mask(mask, idx):
-        plt.imshow(mask[:, idx, :])
+        plt.contour(source_map)
+        plt.imshow(projection_map)
+        plt.savefig(save_path + ".png")
         plt.show()
+
+    def _load_projection_matrix(self, relative_data_path):
+        data_path = os.path.join(self.base_path, relative_data_path)
+        projection = np.load(data_path)
+        return projection
 
 
 if __name__ == "__main__":
     os.chdir("../")
-    surface_map = SurfaceMap("results/max_mean-withoutNorm-1614412388.541507.txt")
+    surface_map = SurfaceMap()
+    surface_map.draw_cortical_surface_map("results/max_mean-withoutNorm-projection_volume-1614604515.124253.npy", 184)
+
 
 
