@@ -44,8 +44,10 @@ class Experiment(object):
 
 
 def main():
+
     mcc = MouseConnectivityCache(resolution=100)
     all_experiments = mcc.get_experiments(dataframe=False)
+
 
     exp_formater = lambda exp: Experiment(exp, mcc)
     experience_list = list(map(exp_formater, all_experiments))
