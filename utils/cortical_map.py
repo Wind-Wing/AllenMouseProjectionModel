@@ -30,7 +30,7 @@ class CorticalMap(object):
     @staticmethod
     def _load_paths(projection):
         module_name = os.path.dirname(__file__)
-        paths_dir = os.path.join(module_name, 'cortical_coordinates')
+        paths_dir = os.path.join(module_name, '../cortical_coordinates')
         path = os.path.join(paths_dir, '%s_paths_100.h5' % projection)
         with h5py.File(path, 'r') as f:
             view_lookup = f['view lookup'][:]
@@ -45,6 +45,12 @@ class CorticalMap(object):
 
         self.view_lookup, self.paths = self._load_paths(projection)
         self.projection = projection
+
+        # quick hack to fix bug
+        # Warning: this fix only verified on top_view
+        assert(self.projection == 'top_view')
+        self.view_lookup[51, 69] = self.view_lookup[51, 68]
+        self.view_lookup[51, 44] = self.view_lookup[51, 43]
 
     def transform(self, volume, agg_func=np.mean, fill_value=0):
         '''Transforms image volume values to 2D cortical surface.
@@ -87,3 +93,10 @@ class CorticalMap(object):
             result[self.view_lookup == -1] = fill_value
 
         return result
+
+
+if __name__ == "__main__":
+    cortical_map = CorticalMap()
+    a = np.ones([132, 80, 114])
+    cortical_map.transform(a)
+
