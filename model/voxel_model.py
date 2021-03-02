@@ -41,12 +41,13 @@ class VoxelModel(object):
     # exp_list - [num_exp] experiences as training data that used to predict the unknown projection from above voxels.
     # Return: projection_matrix - [x, y, z] mean density of projection from all voxels in source region
     def get_voxel_mean_projection_matrix(self, source_id_list, target_id_list, exp_list):
+        assert all(exp_list.injection_centroid[2] >= 57)
         structure_mask = StructureMask()
-        source_mask = structure_mask.get_mask(source_id_list)
+        source_mask = structure_mask.get_mask(source_id_list, hemisphere=1)
         source_voxel_coordinate = np.array(source_mask.nonzero()).transpose()
         source_voxel_num = int(np.sum(source_mask))
 
-        target_mask = structure_mask.get_mask(target_id_list)
+        target_mask = structure_mask.get_mask(target_id_list, hemisphere=2)
         target_voxel_idx = target_mask.nonzero()
         target_voxel_num = int(np.sum(target_mask))
         print("Source voxels' number %d, target voxels' number %d" % (source_voxel_num,  target_voxel_num))
