@@ -41,7 +41,7 @@ def calc_cortex_regional_projection_matrix():
     mat = np.concatenate([lpsilateral_mat, contralateral_mat], axis=1)
 
     _time = time.time()
-    _name = "max_mean-withoutNorm-%f" % _time
+    _name = "max_mean-%f" % _time
     np.save("results/"+_name + ".npy", mat)
     labels = [x['acronym'] for x in cortex_structures]
 
@@ -61,7 +61,7 @@ def calc_cortex_region_projection_volume(structure_id):
     volume = global_model.get_region_projection(structure_id, cortex_region_ids, exp_list)
 
     _time = time.time()
-    _name = "max_mean-withoutNorm-projection_volume%d-%f" % (structure_id, _time)
+    _name = "max_mean-projection_volume%d-%f" % (structure_id, _time)
     np.save("results/" + _name + ".npy", volume)
 
 
