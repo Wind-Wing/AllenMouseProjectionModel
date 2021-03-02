@@ -37,11 +37,12 @@ def calc_cortex_regional_projection_matrix():
     exp_list, cortex_structures, cortex_region_ids = get_cortex_experience()
 
     global_model = GlobalModel()
-    mat = global_model.get_regional_projection_matrix(cortex_region_ids, cortex_region_ids, exp_list)
+    lpsilateral_mat, contralateral_mat = global_model.get_regional_projection_matrix(cortex_region_ids, cortex_region_ids, exp_list)
+    mat = np.concatenate([lpsilateral_mat, contralateral_mat], axis=1)
 
     _time = time.time()
     _name = "max_mean-withoutNorm-%f" % _time
-    np.savetxt("results/"+_name + ".txt", mat)
+    np.save("results/"+_name + ".npy", mat)
     labels = [x['acronym'] for x in cortex_structures]
 
     plt.imshow(mat, cmap=plt.cm.afmhot)
