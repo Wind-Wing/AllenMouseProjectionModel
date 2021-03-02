@@ -10,7 +10,8 @@ class StructureMask(object):
         self.structure_tree = self.mcc.get_structure_tree()
         self.annotations = self.mcc.get_annotation_volume()[0]
 
-    def get_mask(self, structure_id_list):
+    # Hemisphere - 0 left, 1 right, 2 both
+    def get_mask(self, structure_id_list, hemisphere=2):
         mask_list = []
         for id in structure_id_list:
             fine_grained_id_list = self._get_fine_grained_annotation_list(id)
@@ -30,6 +31,17 @@ class StructureMask(object):
         mask = mask_list[0]
         for m in mask_list[1:]:
             mask = np.logical_or(mask, m)
+
+        mask = self._get_hemisphere(mask, hemisphere)
+        return mask
+
+    @staticmethod
+    def _get_hemisphere(mask, hemisphere):
+        assert hemisphere in (0, 1)
+        if hemisphere == 0:
+            mask[:, :, 57:] = 0
+        elif hemisphere == 1:
+            mask[:, :, :57] = 0
         return mask
 
     def _get_fine_grained_annotation_list(self, structure_id):
