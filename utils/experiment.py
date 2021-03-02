@@ -1,3 +1,4 @@
+import os
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,6 +18,7 @@ class Experiment(object):
         # Density - fraction of fluorescing pixels per voxel
         self.cache = MouseConnectivityCache(resolution=resolution)
         self._fetch_data_from_server()
+        self.hemisphere = self.injection_centroid >= 57 # 0 left, 1 right
 
     @retry()
     def _fetch_data_from_server(self):
@@ -42,15 +44,27 @@ class Experiment(object):
         plt.show()
         plt.clf()
 
+    # All experience will be flip to R domain hemisphere
+    def flip(self):
+        self.valid_mask = np.flip(self.valid_mask, axis=2)
+        self.projection_density = np.flip(self.projection_density, axis=2)
+        self.injection_density = np.flip(self.injection_density, axis=2)
+
 
 def main():
-
+    os.chdir("../")
     mcc = MouseConnectivityCache(resolution=100)
-    all_experiments = mcc.get_experiments(dataframe=False)
+    structure_tree = mcc.get_structure_tree()
+    cortex_structures = structure_tree.get_structures_by_set_id([688152357])
+    cortex_region_ids = [x['id'] for x in cortex_structures]
+    all_experiments = mcc.get_experiments(dataframe=False, injection_structure_ids=cortex_region_ids)
 
-
-    exp_formater = lambda exp: Experiment(exp, mcc)
+    exp_formater = lambda exp: Experiment(exp, 100)
     experience_list = list(map(exp_formater, all_experiments))
+    centroid = [x.injection_centroid for x in experience_list]
+    x = np.array([x[2] for x in centroid])
+    print(np.sum(x >= 57))
+    print(np.sum(x < 57))
 
 
 if __name__ == "__main__":
