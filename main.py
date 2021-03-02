@@ -6,9 +6,10 @@ from model.global_model import GlobalModel
 from utils.experiment import Experiment
 
 
-def calc_cortex_regional_projection_matrix():
+def get_cortex_experience():
     mcc = MouseConnectivityCache(resolution=100)
 
+    # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
     structure_tree = mcc.get_structure_tree()
     cortex_structures = structure_tree.get_structures_by_set_id([688152357])
     cortex_region_ids = [x['id'] for x in cortex_structures]
@@ -21,7 +22,20 @@ def calc_cortex_regional_projection_matrix():
     exp_formater = lambda exp: Experiment(exp, 100)
     exp_list = list(map(exp_formater, all_experiments))
 
-    # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
+    exp_list = flip_to_right_hemisphere(exp_list)
+    return exp_list, cortex_structures, cortex_region_ids
+
+
+def flip_to_right_hemisphere(exp_list):
+    for exp in exp_list:
+        if exp.hemisphere == 0:
+            exp.flip()
+    return exp_list
+
+
+def calc_cortex_regional_projection_matrix():
+    exp_list, cortex_structures, cortex_region_ids = get_cortex_experience()
+
     global_model = GlobalModel()
     mat = global_model.get_regional_projection_matrix(cortex_region_ids, cortex_region_ids, exp_list)
 
@@ -40,19 +54,7 @@ def calc_cortex_regional_projection_matrix():
 
 
 def calc_cortex_region_projection_volume(structure_id):
-    mcc = MouseConnectivityCache(resolution=100)
-
-    structure_tree = mcc.get_structure_tree()
-    cortex_structures = structure_tree.get_structures_by_set_id([688152357])
-    cortex_region_ids = [x['id'] for x in cortex_structures]
-    print(structure_id, cortex_region_ids)
-
-    print("Getting experiences' ids")
-    all_experiments = mcc.get_experiments(dataframe=False, injection_structure_ids=cortex_region_ids)
-    print("Total %d experiences" % len(all_experiments))
-    print("Loading and formating experience data")
-    exp_formater = lambda exp: Experiment(exp, 100)
-    exp_list = list(map(exp_formater, all_experiments))
+    exp_list, cortex_structures, cortex_region_ids = get_cortex_experience()
 
     global_model = GlobalModel()
     volume = global_model.get_region_projection(structure_id, cortex_region_ids, exp_list)
