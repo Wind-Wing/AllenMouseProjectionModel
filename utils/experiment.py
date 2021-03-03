@@ -18,7 +18,7 @@ class Experiment(object):
         # Density - fraction of fluorescing pixels per voxel
         self.cache = MouseConnectivityCache(resolution=resolution)
         self._fetch_data_from_server()
-        self.hemisphere = self.injection_centroid >= 57 # 0 left, 1 right
+        self.hemisphere = self.injection_centroid[2] >= 57 # 0 left, 1 right
 
     @retry()
     def _fetch_data_from_server(self):

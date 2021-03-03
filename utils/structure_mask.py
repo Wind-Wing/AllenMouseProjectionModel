@@ -37,7 +37,7 @@ class StructureMask(object):
 
     @staticmethod
     def _get_hemisphere(mask, hemisphere):
-        assert hemisphere in (0, 1)
+        assert hemisphere in (0, 1, 2)
         if hemisphere == 0:
             mask[:, :, 57:] = 0
         elif hemisphere == 1:
