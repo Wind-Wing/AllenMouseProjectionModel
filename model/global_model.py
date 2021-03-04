@@ -19,7 +19,7 @@ class GlobalModel(object):
         _func = lambda x: self._get_region_projection(x, target_mask, exp_list)
         projection_list = [_func(x) for x in source_masks]
 
-        lpsilateral_mat = self._get_hemisphere_regional_projection_matrix(
+        ipsilateral_mat = self._get_hemisphere_regional_projection_matrix(
             projection_list,
             source_structure_id_list,
             target_structure_id_list,
@@ -30,7 +30,7 @@ class GlobalModel(object):
             source_structure_id_list,
             target_structure_id_list,
             0)
-        return lpsilateral_mat, contralateral_mat
+        return ipsilateral_mat, contralateral_mat
 
     def _get_hemisphere_regional_projection_matrix(
             self,

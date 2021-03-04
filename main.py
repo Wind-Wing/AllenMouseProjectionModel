@@ -38,8 +38,8 @@ def calc_cortex_regional_projection_matrix():
     exp_list, cortex_structures, cortex_region_ids = _get_cortex_experience()
 
     global_model = GlobalModel()
-    lpsilateral_mat, contralateral_mat = global_model.get_regional_projection_matrix(cortex_region_ids, cortex_region_ids, exp_list)
-    mat = np.concatenate([lpsilateral_mat, contralateral_mat], axis=1)
+    ipsilateral_mat, contralateral_mat = global_model.get_regional_projection_matrix(cortex_region_ids, cortex_region_ids, exp_list)
+    mat = np.concatenate([ipsilateral_mat, contralateral_mat], axis=1)
 
     _time = time.time()
     _name = "max_mean-%f" % _time
@@ -47,7 +47,7 @@ def calc_cortex_regional_projection_matrix():
     labels = [x['acronym'] for x in cortex_structures]
 
     plt.subplot(121)
-    plt.imshow(lpsilateral_mat, cmap=plt.cm.afmhot)
+    plt.imshow(ipsilateral_mat, cmap=plt.cm.afmhot)
     plt.xticks(range(len(labels)), labels, rotation=60)
     plt.yticks(range(len(labels)), labels)
 
