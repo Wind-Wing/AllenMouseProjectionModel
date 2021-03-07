@@ -40,7 +40,7 @@ class NadarayaWatsonModel(object):
     # Return: projection_matrix - [num_target_voxel] aggregated density of projection from all voxels in source region
     def get_region_voxel_projection_matrix(self, source_mask_idx, exp_list, aggregate_func=np.max):
         # assert all([x.injection_centroid[2] >= 57 for x in exp_list])
-        source_voxel_coordinate = source_mask_idx.transpose()
+        source_voxel_coordinate = np.array(source_mask_idx).transpose()
         source_voxel_num = int(len(source_mask_idx[0]))
         print("Source voxels' number %d" % source_voxel_num)
 

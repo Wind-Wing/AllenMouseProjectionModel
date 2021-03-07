@@ -6,7 +6,7 @@ from utils.constants import *
 
 
 class Experiment(object):
-    def __init__(self, exp_dict, projection_structure_mask_idx=None):
+    def __init__(self, exp_dict, projection_structure_mask_idx=None, flip_to=None):
         # self.id = exp_dict["id"]
         # self.structure_id = exp_dict["structure_id"]
         # self.structure_name = exp_dict["structure_name"]
@@ -18,6 +18,9 @@ class Experiment(object):
         injection_density, projection_density = self._fetch_data_from_server(exp_dict['id'])
         self.injection_centroid = self._calc_injection_centroid(injection_density)
         self.hemisphere = self._calc_hemisphere()
+
+        injection_density, projection_density, self.injection_centroid = self._flip(
+            injection_density, projection_density, self.injection_centroid, flip_to)
         self.normalized_projection_density = self._calc_normalized_projection_density(
             injection_density, projection_density, projection_structure_mask_idx)
 
@@ -53,11 +56,14 @@ class Experiment(object):
             normalized_projection_density = normalized_projection_density[structure_mask_idx]
         return normalized_projection_density
 
-    # All experience will be flip to R domain hemisphere
-    def flip(self):
-        # self.projection_density = np.flip(self.projection_density, axis=2)
-        # self.injection_density = np.flip(self.injection_density, axis=2)
-        self.normalized_projection_density = np.flip(self.normalized_projection_density, axis=2)
+    def _flip(self, injection_density, projection_density, injection_centroid, flip_to):
+        if (flip_to is not None) and (self.hemisphere != flip_to):
+            self.injection_density = np.flip(injection_density, axis=2)
+            self.projection_density = np.flip(projection_density, axis=2)
+            vertical_plane_coordinate = injection_centroid[VERTICAL_PLANE_IDX]
+            vertical_plane_max_coordinate = VOXEL_SHAPE[VERTICAL_PLANE_IDX] - 1
+            injection_centroid[VERTICAL_PLANE_IDX] = vertical_plane_max_coordinate - vertical_plane_coordinate
+        return injection_density, projection_density, injection_centroid
 
 
 def main():
