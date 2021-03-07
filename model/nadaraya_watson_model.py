@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics.pairwise import pairwise_kernels
 
 
-class VoxelModel(object):
+class NadarayaWatsonModel(object):
     def __init__(self, gamma):
         self.gamma = gamma
         self.kernel_type = "rbf"
@@ -37,11 +37,11 @@ class VoxelModel(object):
     # source_id_list - [num_structure_id] Voxels in which structures that needed to predict it's projection
     #                   taking this voxel as injection point.
     # exp_list - [num_exp] experiences as training data that used to predict the unknown projection from above voxels.
-    # Return: projection_matrix - [x, y, z] mean density of projection from all voxels in source region
-    def get_region_voxel_projection_matrix(self, source_mask, exp_list, aggregate_func=np.max):
+    # Return: projection_matrix - [num_target_voxel] aggregated density of projection from all voxels in source region
+    def get_region_voxel_projection_matrix(self, source_mask_idx, exp_list, aggregate_func=np.max):
         # assert all([x.injection_centroid[2] >= 57 for x in exp_list])
-        source_voxel_coordinate = np.array(source_mask.nonzero()).transpose()
-        source_voxel_num = int(np.sum(source_mask))
+        source_voxel_coordinate = source_mask_idx.transpose()
+        source_voxel_num = int(len(source_mask_idx[0]))
         print("Source voxels' number %d" % source_voxel_num)
 
         injection_centroid = np.array([x.injection_centroid for x in exp_list])

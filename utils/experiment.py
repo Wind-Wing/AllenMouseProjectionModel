@@ -6,7 +6,7 @@ from utils.constants import *
 
 
 class Experiment(object):
-    def __init__(self, exp_dict, structure_mask_idx=None):
+    def __init__(self, exp_dict, projection_structure_mask_idx=None):
         # self.id = exp_dict["id"]
         # self.structure_id = exp_dict["structure_id"]
         # self.structure_name = exp_dict["structure_name"]
@@ -19,7 +19,7 @@ class Experiment(object):
         self.injection_centroid = self._calc_injection_centroid(injection_density)
         self.hemisphere = self._calc_hemisphere()
         self.normalized_projection_density = self._calc_normalized_projection_density(
-            injection_density, projection_density, structure_mask_idx)
+            injection_density, projection_density, projection_structure_mask_idx)
 
     @staticmethod
     @retry()
