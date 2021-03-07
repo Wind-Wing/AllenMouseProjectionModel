@@ -25,6 +25,9 @@ class CortexModel(object):
         base_path = os.path.join(module_path, '../')
         self.save_dir = base_path + "results/"
 
+        self.source_aggregate_func = np.max
+        self.target_aggregate_func = np.mean
+
     @staticmethod
     def _get_structures_info():
         # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
@@ -50,24 +53,24 @@ class CortexModel(object):
         l_region_masks_idx = [self.structure_mask.get_mask_idx([x], L_HEMISPHERE) for x in self.cortex_region_ids]
 
         _get_vector = lambda x: self.interpolation_model.get_one_region_projection(
-            x, self.cortex_mask_idx, self.experiences)
+            x, self.cortex_mask_idx, self.experiences, self.source_aggregate_func)
         regional_projection_vectors = [_get_vector(x) for x in r_region_masks_idx]
 
         ipsilateral_mat = self.interpolation_model.get_regional_projection_matrix(
-            regional_projection_vectors, target_masks_idx=r_region_masks_idx)
+            regional_projection_vectors, target_masks_idx=r_region_masks_idx, aggregate_func=self.target_aggregate_func)
         contralateral_mat = self.interpolation_model.get_regional_projection_matrix(
-            regional_projection_vectors, target_masks_idx=l_region_masks_idx)
+            regional_projection_vectors, target_masks_idx=l_region_masks_idx, aggregate_func=self.target_aggregate_func)
 
         self._save_results(ipsilateral_mat, contralateral_mat)
 
     def _save_results(self, ipsilateral_mat, contralateral_mat):
         _time = time.time()
 
-        _name = "max_mean-%f" % _time
+        _name = "%s_%s-%f" % (self.source_aggregate_func.__name__, self.target_aggregate_func.__name__, _time)
         mat = np.concatenate([ipsilateral_mat, contralateral_mat], axis=1)
         np.save(self.save_dir + _name + ".npy", mat)
-        labels = self.cortex_region_names
 
+        labels = self.cortex_region_names
         plt.subplot(121)
         plt.imshow(ipsilateral_mat, cmap=plt.cm.afmhot)
         plt.xticks(range(len(labels)), labels, rotation=60)
@@ -89,7 +92,7 @@ class CortexModel(object):
         r_region_masks_idx = [self.structure_mask.get_mask_idx([x], R_HEMISPHERE) for x in self.cortex_region_ids]
         for _id, idx in zip(self.cortex_region_ids, r_region_masks_idx):
             flatten_volume = self.interpolation_model.get_one_region_projection(
-                idx, self.cortex_region_ids, self.experiences)
+                idx, self.cortex_region_ids, self.experiences, self.source_aggregate_func)
             volume = np.zeros(shape=VOXEL_SHAPE)
             volume[self.cortex_mask_idx] = flatten_volume
             _name = "max_mean-projection_volume%d-%f" % (_id, _time)

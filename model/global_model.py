@@ -9,7 +9,7 @@ class GlobalModel(object):
         self.nadaraya_watson_model = NadarayaWatsonModel(gamma)
 
     # Return - projection [x, y, z]
-    def get_one_region_projection(self, source_mask_idx, cortex_mask_idx, exp_list, aggregate_func=np.max):
+    def get_one_region_projection(self, source_mask_idx, cortex_mask_idx, exp_list, aggregate_func=np.mean):
         # assert all([x.injection_centroid[2] >= 57 for x in exp_list])
         projection_vector = self.nadaraya_watson_model.get_region_voxel_projection_matrix(
             source_mask_idx, exp_list, aggregate_func)
