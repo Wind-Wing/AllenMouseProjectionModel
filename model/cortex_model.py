@@ -91,9 +91,7 @@ class CortexModel(object):
         _time = time.time()
         r_region_masks_idx = [self.structure_mask.get_mask_idx([x], R_HEMISPHERE) for x in self.cortex_region_ids]
         for _id, idx in zip(self.cortex_region_ids, r_region_masks_idx):
-            flatten_volume = self.interpolation_model.get_one_region_projection(
-                idx, self.cortex_region_ids, self.experiences, self.source_aggregate_func)
-            volume = np.zeros(shape=VOXEL_SHAPE)
-            volume[self.cortex_mask_idx] = flatten_volume
+            volume = self.interpolation_model.get_one_region_projection(
+                idx, self.cortex_mask_idx, self.experiences, self.source_aggregate_func)
             _name = "max_mean-projection_volume%d-%f" % (_id, _time)
             np.save(self.save_dir + _name + ".npy", volume)
