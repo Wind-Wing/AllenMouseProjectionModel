@@ -38,7 +38,7 @@ class NadarayaWatsonModel(object):
     #                   taking this voxel as injection point.
     # exp_list - [num_exp] experiences as training data that used to predict the unknown projection from above voxels.
     # Return: projection_matrix - [num_target_voxel] aggregated density of projection from all voxels in source region
-    def get_region_voxel_projection_matrix(self, source_mask_idx, exp_list, aggregate_func=np.max):
+    def get_region_voxel_projection_matrix(self, source_mask_idx, exp_list, aggregate_func=np.mean):
         # assert all([x.injection_centroid[2] >= 57 for x in exp_list])
         source_voxel_coordinate = np.array(source_mask_idx).transpose()
         source_voxel_num = int(len(source_mask_idx[0]))

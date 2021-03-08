@@ -1,7 +1,10 @@
 import os
 import time
+import seaborn
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.gridspec as gridspec
 from allensdk.core.mouse_connectivity_cache import MouseConnectivityCache
 from utils.structure_mask import StructureMask
 from utils.experiment import Experiment
@@ -25,7 +28,7 @@ class CortexModel(object):
         base_path = os.path.join(module_path, '../')
         self.save_dir = base_path + "results/"
 
-        self.source_aggregate_func = np.max
+        self.source_aggregate_func = np.mean
         self.target_aggregate_func = np.mean
 
     @staticmethod
@@ -64,34 +67,42 @@ class CortexModel(object):
         self._save_results(ipsilateral_mat, contralateral_mat)
 
     def _save_results(self, ipsilateral_mat, contralateral_mat):
-        _time = time.time()
+        _time = time.strftime("%Y%m%d%H%M")
 
-        _name = "%s_%s-%f" % (self.source_aggregate_func.__name__, self.target_aggregate_func.__name__, _time)
+        _name = "%s_%s-%s" % (self.source_aggregate_func.__name__, self.target_aggregate_func.__name__, _time)
         mat = np.concatenate([ipsilateral_mat, contralateral_mat], axis=1)
         np.save(self.save_dir + _name + ".npy", mat)
 
-        labels = self.cortex_region_names
-        plt.subplot(121)
-        plt.imshow(ipsilateral_mat, cmap=plt.cm.afmhot)
-        plt.xticks(range(len(labels)), labels, rotation=60)
-        plt.yticks(range(len(labels)), labels)
-
-        plt.subplot(122)
-        plt.imshow(contralateral_mat, cmap=plt.cm.afmhot)
-        plt.xticks(range(len(labels)), labels, rotation=60)
-        plt.yticks(range(len(labels)), labels)
+        # for log(x + e)
+        epsilon = 1e-10
+        mat += epsilon
 
         fig = plt.gcf()
         fig.set_size_inches((20, 10), forward=False)
+
+        gs = gridspec.GridSpec(nrows=1, ncols=3, width_ratios=(0.49, 0.49, 0.02), wspace=0.01)
+        heatmap_ax1 = fig.add_subplot(gs[0])
+        heatmap_ax2 = fig.add_subplot(gs[1])
+        cbar_ax = fig.add_subplot(gs[2])
+
+        vmin = 1e-5
+        vmax = 10 ** -2.5
+        norm = colors.LogNorm(vmin=vmin, vmax=vmax)
+        seaborn.heatmap(ipsilateral_mat, ax=heatmap_ax1, cbar=False, cmap=plt.cm.CMRmap, norm=norm, vmin=vmin, vmax=vmax, alpha=0.8)
+        seaborn.heatmap(contralateral_mat, ax=heatmap_ax2, cbar_ax=cbar_ax, yticklabels=False, cmap=plt.cm.CMRmap, norm=norm, vmin=vmin, vmax=vmax, alpha=0.8)
+        heatmap_ax1.set_xticklabels(labels=self.cortex_region_names, rotation=90)
+        heatmap_ax1.set_yticklabels(labels=self.cortex_region_names, rotation=60)
+        heatmap_ax2.set_xticklabels(labels=self.cortex_region_names, rotation=90)
+
         image_path = self.save_dir + _name + ".png"
         fig.savefig(image_path)
         print("Save image to %s" % image_path)
 
     def calc_region_projection_volume(self):
-        _time = time.time()
+        _time = time.strftime("%Y%m%d%H%M")
+        _name = "%s_%s-%s" % (self.source_aggregate_func.__name__, self.target_aggregate_func.__name__, _time)
         r_region_masks_idx = [self.structure_mask.get_mask_idx([x], R_HEMISPHERE) for x in self.cortex_region_ids]
         for _id, idx in zip(self.cortex_region_ids, r_region_masks_idx):
             volume = self.interpolation_model.get_one_region_projection(
                 idx, self.cortex_mask_idx, self.experiences, self.source_aggregate_func)
-            _name = "max_mean-projection_volume%d-%f" % (_id, _time)
-            np.save(self.save_dir + _name + ".npy", volume)
+            np.save(self.save_dir + "%d-" % _id + _name + ".npy", volume)
