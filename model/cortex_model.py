@@ -15,9 +15,7 @@ class CortexModel(object):
     def __init__(self, interpolation_model):
         self.interpolation_model = interpolation_model
 
-        cortex_structures = self._get_structures_info()
-        self.cortex_region_ids = [x['id'] for x in cortex_structures]
-        self.cortex_region_names = [x['acronym'] for x in cortex_structures]
+        self.cortex_region_ids, self.cortex_region_names = self.get_structures_info()
         print("cortex region ids " + str(self.cortex_region_ids))
 
         self.structure_mask = StructureMask()
@@ -32,16 +30,19 @@ class CortexModel(object):
         self.target_aggregate_func = np.mean
 
     @staticmethod
-    def _get_structures_info():
+    def get_structures_info():
         # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
         # TODO: distinguish experiences with different mice gene type.
         # TODO: drop experiences that injection in multi-major area.
         mcc = MouseConnectivityCache(resolution=RESOLUTION)
         structure_tree = mcc.get_structure_tree()
         cortex_structures = structure_tree.get_structures_by_set_id([688152357])
-        return cortex_structures
+        cortex_region_ids = [x['id'] for x in cortex_structures]
+        cortex_region_names = [x['acronym'] for x in cortex_structures]
+        return cortex_region_ids, cortex_region_names
 
-    def _load_experiences(self, injection_structure_ids, projection_structure_mask_idx):
+    @staticmethod
+    def _load_experiences(injection_structure_ids, projection_structure_mask_idx):
         mcc = MouseConnectivityCache(resolution=RESOLUTION)
 
         all_experiments = mcc.get_experiments(dataframe=False, injection_structure_ids=injection_structure_ids)
