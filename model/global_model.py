@@ -2,6 +2,7 @@ import numpy as np
 from model.nadaraya_watson_model import NadarayaWatsonModel
 from utils.constants import VOXEL_SHAPE
 
+
 # TODO: compare with regional model and homogeneous model
 # Using Nadaraya Watson method to calculate region projection matrix based on global data
 class GlobalModel(object):

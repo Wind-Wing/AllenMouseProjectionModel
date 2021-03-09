@@ -34,6 +34,8 @@ class CortexModel(object):
     @staticmethod
     def _get_structures_info():
         # TODO: fill out experience that is not mainly inject on cortex area, some injection will spread into sub-cortex area.
+        # TODO: distinguish experiences with different mice gene type.
+        # TODO: drop experiences that injection in multi-major area.
         mcc = MouseConnectivityCache(resolution=RESOLUTION)
         structure_tree = mcc.get_structure_tree()
         cortex_structures = structure_tree.get_structures_by_set_id([688152357])
@@ -90,9 +92,9 @@ class CortexModel(object):
         norm = colors.LogNorm(vmin=vmin, vmax=vmax)
         seaborn.heatmap(ipsilateral_mat, ax=heatmap_ax1, cbar=False, cmap=plt.cm.CMRmap, norm=norm, vmin=vmin, vmax=vmax, alpha=0.8)
         seaborn.heatmap(contralateral_mat, ax=heatmap_ax2, cbar_ax=cbar_ax, yticklabels=False, cmap=plt.cm.CMRmap, norm=norm, vmin=vmin, vmax=vmax, alpha=0.8)
-        heatmap_ax1.set_xticklabels(labels=self.cortex_region_names, rotation=90)
-        heatmap_ax1.set_yticklabels(labels=self.cortex_region_names, rotation=60)
-        heatmap_ax2.set_xticklabels(labels=self.cortex_region_names, rotation=90)
+        heatmap_ax1.set_xticklabels(labels=self.cortex_region_names, rotation=60)
+        heatmap_ax1.set_yticklabels(labels=self.cortex_region_names, rotation=0)
+        heatmap_ax2.set_xticklabels(labels=self.cortex_region_names, rotation=60)
 
         image_path = self.save_dir + _name + ".png"
         fig.savefig(image_path)
