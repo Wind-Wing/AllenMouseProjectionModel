@@ -60,7 +60,6 @@ class NonnegativeLinear(LinearModel, RegressorMixin):
         -------
         self : returns an instance of self.
         """
-        # TODO: add support for sparse
         X, y = check_X_y(X, y, multi_output=True, y_numeric=True)
 
         if X.ndim == 1:

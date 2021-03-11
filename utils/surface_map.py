@@ -9,6 +9,7 @@ from utils.constants import *
 
 
 # TODO: when using cortical_map, distinguish value out of mask and zero value. (If the structure is smaller than cortex)
+# TODO: surface map is mismatched in areas like AUD, Mop. This may be a systemic error in algorithm design. Or can try regional model.
 class SurfaceMap(object):
     def __init__(self):
         mcc = MouseConnectivityCache(resolution=RESOLUTION)
